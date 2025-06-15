@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Distribución de Agua</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <<div class="container">
+        <div class="sidebar">
+            <h1>Distribución de Agua</h1>
+            <select id="region">
+                <option value="Arequipa">Arequipa</option>
+                <option value="Lima">Lima</option>
+            </select>
+            <button onclick="generar()">Generar Mapa</button>
+            <button onclick="procesar()">Procesar Algoritmos</button>
+            <div id="resultado" class="resultados" style="margin-top: 20px;"></div>
+
+        </div>
+        <div class="mapa">
+            <iframe id="mapaFrame" src="{{ url_for('static', filename='mapa.html') }}"></iframe>
+        </div>
+    </div>
+
+
+    <script>
+        function generar() {
+             document.getElementById("mapa").src = "/static/mapa.html";
+
+            fetch("/procesar", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ region })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let html = "<h3>Resultados</h3>";
+                html += "<strong>Rutas óptimas:</strong><br>";
+
+               for (const punto in data.rutas_optimas) {
+                    html += `${punto}: ${data.rutas_optimas[punto] ? data.rutas_optimas[punto].join(" → ") : "Sin ruta"}<br>`;
+                }
+
+                html += "<br><strong>Flujos máximos:</strong><br>";
+                for (const punto in data.flujos_maximos) {
+                    html += `${punto}: ${data.flujos_maximos[punto]} L/s<br>`;
+                }
+                document.getElementById("resultado").innerHTML = html;
+            });
+        }
+        function generar() {
+            const iframe = document.getElementById("mapaFrame");
+             iframe.src = iframe.src;  
+        }
+    </script>
+
+</body>
+</html>
